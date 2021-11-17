@@ -5,30 +5,29 @@ env:
   APPLICATION_NAME: app2
 jobs:
   lint:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2.4.0
     - name: Setup Python environment
-      uses: actions/setup-python@v1.1.1
+      uses: actions/setup-python@v2.2.2
     - name: Install requirements
       run: pip install --quiet --requirement requirements.txt
     - name: Lint code
       run: |
         flake8 --ignore=E501,E231 *.py
-        pylint --disable=C0301 --disable=C0326 *.py
+        pylint --disable=C0301 --disable=C0326 --disable=W1514 *.py
     - name: Run unit tests
       run: |
         python -m unittest --verbose --failfast
 
   build_image:
     needs: [lint]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up GCloud
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - uses: actions/checkout@v2.4.0
+    - name: Set up gcloud Cloud SDK environment
+      uses: google-github-actions/setup-gcloud@v0.2.0
       with:
-        version: '274.0.1'
         service_account_email: ${{ secrets.GCP_SERVICE_ACCT_EMAIL }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCT_KEY }}
     - run: |
@@ -45,12 +44,12 @@ jobs:
 
   test_image:
     needs: [build_image]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-    - name: Set up GCloud
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - uses: actions/checkout@v2.4.0
+    - name: Set up gcloud Cloud SDK environment
+      uses: google-github-actions/setup-gcloud@v0.2.0
       with:
-        version: '274.0.1'
         service_account_email: ${{ secrets.GCP_SERVICE_ACCT_EMAIL }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCT_KEY }}
     - run: |
@@ -64,12 +63,12 @@ jobs:
 
   deploy:
     needs: [test_image]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-    - name: Set up GCloud
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - uses: actions/checkout@v2.4.0
+    - name: Set up gcloud Cloud SDK environment
+      uses: google-github-actions/setup-gcloud@v0.2.0
       with:
-        version: '274.0.1'
         service_account_email: ${{ secrets.GCP_SERVICE_ACCT_EMAIL }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCT_KEY }}
     - run: |
