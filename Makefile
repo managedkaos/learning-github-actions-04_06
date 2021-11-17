@@ -26,10 +26,10 @@ unittest:
 build: pip lint unittest
 	docker build -t $(SCOPE)/$(APP):$(TAG) .
 
-run: build
+run:
 	docker run --rm -d -p 5000:8080 --name $(APP) $(SCOPE)/$(APP):$(TAG)
 
-interactive: build
+interactive:
 	docker run --rm -it -p 5000:8080 --name $(APP) $(SCOPE)/$(APP):$(TAG)
 
 stop:
